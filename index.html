@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="style.css">
+<link rel="shortcut icon" href="favicon-32x32.png" type="png">
+
+<head>
+  <meta charset="UTF-8">
+  <title>ONLINE ASSIGNMENT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- LOGIN -->
+    <div id="login">
+      <h1>PHYSICS ONLINE ASSIGNMENT</h1>
+      <label>Student's Name</label>
+      <input type="text" id="name" required placeholder="Enter your Fullname"> <br>
+      <label>Student's Class</label>
+      <input type="text" id="lass" required placeholder="Enter your Class">
+      <br><br>
+      <button onclick="startExam()">Start Exam</button>
+    </div>
+
+    <!-- EXAM -->
+    <div id="exam" class="hidden">
+      <div class="timer" id="timer"></div>
+      <h2 id="candidate"></h2>
+      <div id="questionBox"></div>
+      <div id="palette"
+        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(40px,1fr));gap:6px;margin-top:15px"></div>
+      <div class="nav">
+        <button onclick="prevQ()">Previous</button>
+        <button onclick="nextQ()">Next</button>
+        <button onclick="submitExam()">Submit</button>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result" class="hidden">
+      <button onclick="downloadPDF()" style="margin-bottom:10px">Download Result (PDF)</button>
+      <h2>Your Result</h2>
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Class</th>
+          <th>Score</th>
+          <th>Total</th>
+        </tr>
+        <tr>
+          <td id="rName"></td>
+          <td id="rClass"></td>
+          <td id="rScore"></td>
+          <td id="rTotal"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="footer">
+      <p>Powered by Horlanif Tech &#169; 2026</p>
+    </div>
+  </div>
+
+  <script>
+    const allQuestions = [
+      { q: '____________ quantity is obtained by combination of two other quantities. ', options: ['Fundamental', 'Mass', 'Area', 'Derived'], answer: 3 },
+      { q: 'The following are units of temperature EXCEPT ', options: ['℉', '℃', 'K', 'None of the options'], answer: 3 },
+      { q: 'The SI unit of force is?', options: ['Joule', 'Newton', 'Watt', 'Pascal'], answer: 1 },
+      { q: 'A car travels at an average speed of 110km/h. What distance does it cover in 12minutes?', options: ['1320km', '550km', '22km', '0.36km'], answer: 2 },
+      { q: 'The dimensional formula of acceleration is __________. ', options: ['LT⁻²', 'MLT⁻²', 'L²T⁻¹', 'LT'], answer: 0 },
+      { q: 'A vehicle of mass 800000g is moving at 20 m/s. Its momentum is __________.', options: ['16,000 Ns', '20,000 Ns', '18,000 Ns', '10,000 Ns'], answer: 0 },
+      { q: 'A body initially moving at 12 m/s is brought to rest in 3 s. The retardation is __________. ', options: ['–4 m/s²', '4 m/s²', '–6 m/s²', '6 m/s²'], answer: 2 },
+      { q: 'The instrument used to measure the internal diameter of a tube accurately is ___________', options: ['Ruler', 'Micrometer Screw Guage', 'Vernier Caliper', 'Tape Rule'], answer: 2 },
+      { q: 'A wheel rotates at 5 revolutions per second. The angular velocity is __________. (π = 3.14) ', options: ['3.14 rad/s', '10 rad/s', '15 rad/s', '31.4 rad/s'], answer: 3 },
+      { q: 'Weight varies from place to place because __________.', options: ['Mass is constant', 'Gravity varies', 'Temperature varies', 'Height changes'], answer: 1 },
+      { q: 'The SI unit of force is?', options: ['Joule', 'Newton', 'Watt', 'Pascal'], answer: 1 },
+      { q: ' ____________ quantity is obtained by combination of two other quantities.', options: ['Fundamental', 'Mass', 'Time', 'Derived'], answer: 3 },
+      { q: 'The following are units of temperature EXCEPT', options: ['℉', '℃', 'K', 'None of the above'], answer: 3 },
+      { q: 'Velocity along a straight line is also known as ________', options: ['Average Velocity', 'Constant Velocity', 'Speed/Time', 'All of the above'], answer: 1 },
+      { q: 'The full meaning of S.I unit is ______________', options: ['Standard International', 'System International', 'International System of Units', 'Scientific International Units'], answer: 2 },
+      { q: ' A train moves with a uniform velocity of 36km/hr for 10s. Calculate the distance travelled?', options: ['50 km', '100 m', '10 m/s', '20 m'], answer: 3 },
+      { q: 'The fundamental unit of Luminous intensity is', options: ['Ampere', 'Mole', 'Kilogram', 'Candela'], answer: 3 },
+      { q: 'Which of the following units is equivalent to Newton (N)', options: ['kgm', 'kgms²', 'kgms⁻²', 'kgm'], answer: 2 },
+      { q: 'The dimension of force is', options: ['ML', 'MLT²', 'MLT⁻²', 'MLT'], answer: 2 },
+      { q: 'The area covered under velocity-time graph represent', options: ['uniform acceleration', 'uniform speed', 'total speed', 'total distance travelled'], answer: 3 },
+      { q: 'Which of the following unit is equivalent to momentum (Ns)', options: ['kgm', 'kgm', 'kgms', 'Nms'], answer: 2 },
+      { q: ' A car of mass 15kg moving with a velocity of 2ms for 10 second The power dissipated by the car is', options: ['30j', '6j', '6w', '30kg'], answer: 2 },
+      { q: 'The energy released from the sun is known as', options: ['Heat energy', 'Tempration', 'solar energy', 'solar panels'], answer: 2 },
+      { q: 'The unit of momentum is', options: ['js', 'Ns', 'NS', 'Nms'], answer: 1 },
+      { q: 'Which of the following is not a scalar quantity?', options: ['density', 'weight', 'speed', 'mass'], answer: 1 },
+      { q: ' ___________ is the rate of doing work or the rate at which energy is expended and measured in watts', options: ['energy', 'force', 'power', 'work'], answer: 2 },
+      { q: 'Which of the following pairs of quantities are not derived', options: ['acceleration and length', 'force and density', 'time and electric current', 'volume and mass'], answer: 2 },
+      { q: ' A car travels at an average speed of 110km/h. What distance does it cover in 12minutes?', options: ['1320 km', '550km', '22km', '9.17km', '0.36km'], answer: 2 },
+      { q: ' A spring makes 40 oscillations in 15s, calculate its angular velocity [π=3.14]', options: ['251.20 rad/secs', '16.75rad/secs', '6.28rad/secs', '2.36rad/secs', '0.43rad/secs'], answer: 1 },
+      { q: 'A ball of mass 7kg falls from a height of 120m. Calculate its kinetic energy after falling through a distance of 70m', options: ['1715 J', '4900 J', '2450 J', '3430 J'], answer: 1 },
+      { q: 'A body of mass 5 kg moves with velocity 8 m/s. Its momentum is', options: ['13 Ns', '20 Ns', '40 Ns', '80 Ns'], answer: 2 },
+      { q: ' A car accelerates from rest at 2 m/s² for 6 seconds. The velocity gained is', options: ['2 m/s', '6 m/s', '8 m/s', '12 m/s'], answer: 3 },
+      { q: 'The unit of pressure is', options: ['N/m³', 'N/m²', 'Nm²', 'Nm⁻²'], answer: 1 },
+      { q: 'The force that opposes motion between two surfaces in contact is called', options: ['Tension', 'Friction', 'Weight', 'Torque', 'Pressure'], answer: 1 },
+      { q: 'Which method reduces friction?', options: ['Roughening surfaces', 'Lubrication', 'Adding weight', 'Increasing area', 'Sanding'], answer: 1 },
+      { q: 'The coefficient of friction has', options: ['Unit N', 'Unit m', 'Unit Nm', 'Unit kg', 'No unit'], answer: 4 },
+      { q: 'A body moving in a circular path changes __________ continuously.', options: ['Speed', 'Mass', 'Velocity', 'Time', 'Weight'], answer: 2 },
+      { q: 'The force needed to keep a body in circular motion is', options: ['Gravity', 'Centrifugal', 'Centripetal', 'Electrostatic', 'Inertia'], answer: 2 },
+      { q: ' A horizontal straight line on a V–T graph represents', options: ['Increasing speed', 'Decreasing speed', 'Constant velocity', 'Constant acceleration', 'Deceleration'], answer: 2 },
+      { q: 'The slope of a velocity–time graph gives', options: ['Velocity', 'Time', 'Acceleration', 'Force', 'Distance'], answer: 2 },
+      { q: 'The area under a velocity–time graph gives', options: ['Distance', 'Power', 'Work', 'Force', 'Mass'], answer: 0 },
+      { q: 'The dimensional formula of acceleration is', options: ['LT⁻²', 'MLT⁻²', 'L²T⁻¹', 'LT', 'T⁻²'], answer: 0 },
+      { q: 'Density is defined as', options: ['Mass × volume', 'Mass ÷ volume', 'Volume ÷ mass', 'Weight × height', 'Weight ÷ mass'], answer: 1 },
+      { q: 'A body is said to be in motion if it', options: ['Has mass', 'Changes position', 'Has volume', 'Is visible', 'Has energy'], answer: 1 },
+      { q: 'The friction that acts on a moving object is', options: ['Static', 'Limiting', 'Rolling', 'Sliding', 'Kinetic'], answer: 4 },
+      { q: 'Motion in a circle at constant speed is', options: ['Curvilinear', 'Accelerated', 'Simple', 'Linear', 'Rotational'], answer: 1 },
+      { q: 'Vehicles moving around a bend are kept on track by', options: ['Gravity', 'Centrifugal force', 'Magnetic force', 'Centripetal force', 'Resistance'], answer: 3 },
+      { q: 'The dimensional formula of pressure is', options: ['ML⁻¹T⁻²', 'MLT⁻¹', 'L²T⁻¹', 'MT⁻²', 'L⁻³T⁻²'], answer: 0 },
+      { q: 'The SI unit of energy is', options: ['Newton', 'Joule', 'Watt', 'Pascal', 'Coulomb'], answer: 1 },
+      { q: ' A vehicle of mass 800000g is moving at 20 m/s. Its momentum is', options: ['16,000 Ns', '20,000 Ns', '18,000 Ns', '10,000 Ns', '8,000 Ns'], answer: 0 },
+      { q: 'Calculate the frictional force if coefficient of friction is 0.25 and normal reaction is 400 N.', options: ['100 N', '80 N', '160 N', '120 N', '40 N'], answer: 0 },
+      { q: ' A stone of mass 2 kg is tied to a string and whirled in a circle of radius 1.5 m with speed 5 m/s. Find the centripetal force.', options: ['10 N', '20 N', '25 N', '33.3 N', '50 N'], answer: 3 },
+      { q: ' A body initially moving at 12 m/s is brought to rest in 3 s. The retardation is', options: ['-4 m/s²', '4 m/s²', '-6 m/s²', '6 m/s²', '-12 m/s²'], answer: 0 },
+      { q: ' A wheel rotates at 5 revolutions per second. The angular velocity is (π = 3.14)', options: ['3.14 rad/s', '10 rad/s', '15 rad/s', '31.4 rad/s', '25 rad/s'], answer: 3 },
+      { q: ' If mass = 5 kg and acceleration = 3 m/s², calculate the force.', options: ['8 N', '10 N', '12 N', '15 N', '20 N'], answer: 3 },
+      { q: ' A particle moves in a circle of radius 2 m with frequency 4 Hz. Its speed is (π = 3.14)', options: ['12.56 m/s', '25.12 m/s', '31.4 m/s', '50.24 m/s', '6.28 m/s'], answer: 3 },
+      { q: 'If mass = 5 kg and acceleration = 3 m/s², calculate the force.', options: ['8 N', '10 N', '12 N', '15 N', '20 N'], answer: 3 },
+      { q: 'The instrument used to measure the internal diameter of a tube accurately is', options: ['Ruler', 'Micrometer screw gauge', 'Meter rule', 'Tape rule', 'Opisometer'], answer: 1 },
+      { q: 'The smallest measurement on a standard metre rule is', options: ['0.5 m', '1 cm', '0.1 m', '0.1 cm', '0.1 mm'], answer: 1 },
+      { q: 'Parallax error occurs when', options: ['Eye is not perpendicularly above scale', 'Instrument is adjusted', 'Scale expands', 'Value is correct', 'Value is zero'], answer: 0 },
+      { q: 'Weight varies from place to place because', options: ['Mass is constant', 'Gravity varies', 'Temperature varies', 'Density varies', 'Height changes'], answer: 1 }
+
+    ];
+
+    // ===== RANDOMIZE & LIMIT TO 20 QUESTIONS =====
+    const questions = allQuestions
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 20);
+
+    let index = 0;
+    let score = 0;
+    let answers = [];
+    let time = 3200; // 60 minutes
+    let timerInterval;
+
+    function startExam() {
+      const name = document.getElementById('name').value;
+      if (!name) return alert('Enter your name');
+      const lass = document.getElementById('lass').value;
+      if (!lass) return alert('Enter your class');
+      document.getElementById('candidate').innerText = name;
+      document.getElementById('lass').innerText = lass;
+      document.getElementById('login').classList.add('hidden');
+      document.getElementById('exam').classList.remove('hidden');
+
+      index = 0;
+      answers = [];
+      score = 0;
+      time = 20 * 60;
+
+      renderPalette();
+      loadQuestion();
+      
+      clearInterval(timerInterval);
+      updateTimer(); // force first update
+      timerInterval = setInterval(updateTimer, 1000);
+
+    }
+
+    function loadQuestion() {
+      const q = questions[index];
+      let html = `<div class='question'><h3>Question ${index + 1} of ${questions.length}</h3><p>${q.q}</p>`;
+      html += `<div class='options'>`;
+      q.options.forEach((opt, i) => {
+        html += `<label><input type='radio' name='opt' ${answers[index] == i ? 'checked' : ''} onchange='answers[${index}]=${i}; updatePalette(${index})'> ${opt}</label>`;
+      });
+      html += `</div></div>`;
+      document.getElementById('questionBox').innerHTML = html;
+      highlightCurrent();
+    }
+
+    function renderPalette() {
+      let p = '';
+      questions.forEach((_, i) => {
+        p += `<button id='box${i}' onclick='goTo(${i})' style='padding:8px;border-radius:4px;border:1px solid #999;background:#000052' class='box'>${i + 1}</button>`;
+      });
+      document.getElementById('palette').innerHTML = p;
+    }
+
+    function updatePalette(i) {
+      document.getElementById('box' + i).style.background = '#81c784';
+    }
+
+    function highlightCurrent() {
+      questions.forEach((_, i) => {
+        document.getElementById('box' + i).style.border = i === index ? '2px solid #1e88e5' : '1px solid #999';
+      });
+    }
+
+    function goTo(i) { index = i; loadQuestion(); }
+
+    function nextQ() { if (index < questions.length - 1) { index++; loadQuestion(); } }
+    function prevQ() { if (index > 0) { index--; loadQuestion(); } }
+
+    function submitExam() {
+      clearInterval(timer);
+      score = 0;
+      questions.forEach((q, i) => { if (answers[i] === q.answer) score++; });
+      document.getElementById('exam').classList.add('hidden');
+      document.getElementById('result').classList.remove('hidden');
+      document.getElementById('rName').innerText = document.getElementById('candidate').innerText;
+      document.getElementById('rScore').innerText = score;
+      document.getElementById('rClass').innerText = document.getElementById(`lass`).innerText;
+      document.getElementById('rTotal').innerText = questions.length;
+    }
+
+    function updateTimer() {
+      let m = Math.floor(time / 60);
+      let s = time % 60;
+
+      document.getElementById('timer').innerText =
+        `${m}:${s < 10 ? '0' + s : s}`;
+
+      if (time <= 0) {
+        clearInterval(timerInterval);
+        submitExam();
+        return;
+      }
+
+      time--;
+    }
+
+
+
+
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const name = document.getElementById('rName').innerText;
+      const score = document.getElementById('rScore').innerText;
+      const total = document.getElementById('rTotal').innerText;
+      const lass = document.getElementById('rClass').innerText;
+
+
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 51, 102);
+      doc.text('YOUR RESULT', 80, 20, { align: "center" });
+
+      doc.setFontSize(12);
+      doc.text(`Candidate Name: ${name}`, 20, 40);
+      doc.text(`Candidate Class: ${lass}`, 20, 55);
+      doc.text(`Score: ${score} / ${total}`, 20, 65);
+
+
+      doc.text('Thank you for taking Test.', 80, 75);
+
+      doc.text('------------------------------------------', 80, 95);
+      doc.text('Horlanif Tech  2026', 80, 110);
+
+      doc.save(`${name}.pdf`);
+    }
+  </script>
+</body>
+
+</html>
