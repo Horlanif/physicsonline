@@ -856,6 +856,13 @@
     function prevQ() { if (index > 0) { index--; loadQuestion(); } }
 
     function submitExam() {
+
+      const confirmSubmit = confirm("Are you sure you want to submit?");
+
+      if (!confirmSubmit) {
+        return;
+      }
+
       clearInterval(timer);
       score = 0;
       questions.forEach((q, i) => { if (answers[i] === q.answer) score++; });
@@ -906,54 +913,98 @@
   <script>
     function downloadPDF() {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a5"
+      });
 
 
- // Get values from your page
+      // Get values from your page
       const name = document.getElementById('rName').innerText;
       const score = document.getElementById('rScore').innerText;
       const total = document.getElementById('rTotal').innerText;
       const lass = document.getElementById('rClass').innerText;
       const subject = document.getElementById('rSubject').innerText;
 
- // Header
-      doc.setFontSize(18);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(0, 51, 102);
-      doc.text('YOUR RESULT', 80, 20, { align: "center" });
+      // Load school logo
+      const logo = new Image();
+      logo.src = "logo.png";   // make sure logo.png is in same folder
+      logo.onload = function () {
 
- // Table data
-      const tableData = [
-        ["Candidate Name", name],
-        ["Class", lass],
-        ["Subject", subject],
-        ["Score", `${score} / ${total}`],
-        ["Percentage", `${((score / total) * 100).toFixed(2)}%`],
-        ["Date", new Date().toLocaleString()]
-      ];
+        /* ========= WATERMARK ========= */
+        doc.setGState(new doc.GState({ opacity: 0.12 }));
+        doc.addImage(logo, "PNG", 25, 70, 100, 100);
+        doc.setGState(new doc.GState({ opacity: 1 }));
 
-      // Add table
-      doc.autoTable({
-        startY: 35,
-        head: [["Field", "Details"]],
-        body: tableData,
-        theme: "grid",
-        headStyles: { fillColor: [0, 51, 102], textColor: 255, fontStyle: "bold" },
-        styles: { fontSize: 12 }
-      });
-      // Footer
-      const finalY = doc.lastAutoTable.finalY || 80; // position footer after table
-      doc.setFontSize(10);
-      doc.text("Thank you for taking the Test.", 105, finalY + 15, { align: "center" });
-      doc.text("------------------------------------------", 105, finalY + 25, { align: "center" });
-      doc.text("Horlanif Tech 2026", 105, finalY + 35, { align: "center" });
+        /* ========= TOP LOGO ========= */
+        doc.addImage(logo, "PNG", 60, 5, 30, 30);
 
-      // Save PDF
-      doc.save(`${name.replace(/\s+/g, "_")}_${subject.replace(/\s+/g, "_")}.pdf`);
 
+        // Header
+        doc.setFontSize(18);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(0, 51, 102);
+        doc.text('YOUR RESULT', 80, 50, { align: "center" });
+
+        // Table data
+        const tableData = [
+          ["Candidate Name", name],
+          ["Class", lass],
+          ["Subject", subject],
+          ["Score", `${score} / ${total}`],
+          ["Percentage", `${((score / total) * 100).toFixed(2)}%`],
+          ["Date", new Date().toLocaleString()]
+        ];
+
+        // Add table
+        doc.autoTable({
+
+          startY: 55,
+          head: [["Field", "Details"]],
+          body: tableData,
+          theme: "grid",
+
+          headStyles: {
+            fillColor: [0, 51, 102],
+            textColor: 255,
+            fontStyle: "bold"
+          },
+
+          styles: {
+            fontSize: 10,
+            cellPadding: 3,
+            fillColor: false,   // NO background
+            textColor: 0
+          },
+
+          bodyStyles: {
+            fillColor: false   // Transparent body
+          },
+
+          alternateRowStyles: {
+            fillColor: false   // No zebra striping
+          },
+
+          margin: { left: 10, right: 10 }
+        });
+
+
+        // Footer
+        const finalY = doc.lastAutoTable.finalY || 80; // position footer after table
+        doc.setFontSize(10);
+        doc.text("Thank you for taking the Test.", 105, finalY + 15, { align: "center" });
+        doc.text("------------------------------------------", 105, finalY + 25, { align: "center" });
+        doc.text("Horlanif Tech 2026", 105, finalY + 35, { align: "center" });
+
+        // Save PDF
+        doc.save(`${name.replace(/\s+/g, "_")}_${subject.replace(/\s+/g, "_")}.pdf`);
+
+      };
     }
 
-    
+
 
 
     //   doc.setFontSize(12);
