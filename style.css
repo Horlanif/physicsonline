@@ -113,7 +113,8 @@
  }
 
  #login button,
- #exam button,#result button {
+ #exam button,
+ #result button {
      padding: 15px 16px;
      border: none;
      border-radius: 50px;
@@ -303,10 +304,22 @@
      background-color: hsla(133, 75%, 40%, 0.897);
  }
 
-  #calculator .trig-btn:hover {
+ #calculator .trig-btn:hover {
      background-color: hsla(133, 75%, 65%, 0.897);
  }
 
-  #calculator .trig-btn:active {
+ #calculator .trig-btn:active {
      background-color: hsla(133, 75%, 75%, 0.897);
+ }
+
+
+ @media screen and (max-width:768px) {
+     #openCalc {
+         top: auto;
+         bottom: 10px;
+         right: 15px;
+         padding: 10px 14px;
+         font-size: 14px;
+         max-height: 40px;
+     }
  }
